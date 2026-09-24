@@ -1,3 +1,4 @@
+import { requireRole } from "@/lib/auth-helpers";
 import { assignRoleToUser } from "@/repository/user.repository";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -5,10 +6,17 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { id } = await params;
     const body = await req.json();
     const { newRole } = body;
+
+    if (!["admin", "faculty", "student"].includes(newRole)) {
+      return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+    }
 
     await assignRoleToUser(id, newRole);
 

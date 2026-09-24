@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getContestLeaderboard } from "@/repository/contest.repository";
+import { getContestLeaderboard, canUserAccessContest } from "@/repository/contest.repository";
 
 // GET /api/contests/[id]/leaderboard - Get contest leaderboard
 export async function GET(
@@ -16,6 +16,16 @@ export async function GET(
     }
 
     const { id: contestId } = await params;
+
+    if (
+      session.user.role === "student" &&
+      !(await canUserAccessContest(contestId, session.user.id))
+    ) {
+      return NextResponse.json(
+        { error: "You don't have access to this contest" },
+        { status: 403 }
+      );
+    }
     const leaderboard = await getContestLeaderboard(contestId);
 
     return NextResponse.json({ leaderboard });

@@ -73,8 +73,8 @@ export interface createSectionType {
 
 export async function createSection(newSection: createSectionType) {
   try {
-    await sql`INSERT INTO sections (name, semesterid, isactive)
-        VALUES (${newSection.name}, ${newSection.semesterid}, ${newSection.isactive})`;
+    await sql`INSERT INTO sections (name, semesterid, departmentid, isactive)
+        VALUES (${newSection.name}, ${newSection.semesterid}, ${newSection.departmentid || null}, ${newSection.isactive ?? true})`;
     return true;
   } catch (e) {
     console.log(e);
@@ -123,7 +123,8 @@ export async function getSectionsWithPagination(
       const searchPattern = `%${search}%`;
 
       sections = await sql`
-        SELECT DISTINCT sections.id, sections.name as section_name, semesters.name as semester_name, sections.isactive as is_active,
+        SELECT DISTINCT sections.id, sections.name as section_name, semesters.name as semester_name,
+               sections.isactive as is_active, sections.semesterid, sections.departmentid,
                LOWER(sections.name) as section_name_lower, LOWER(semesters.name) as semester_name_lower
         FROM sections
         INNER JOIN semesters ON sections.semesterid = semesters.id
@@ -143,7 +144,7 @@ export async function getSectionsWithPagination(
     } else {
       sections = await sql`
         SELECT DISTINCT sections.id, sections.name as section_name, semesters.name as semester_name, 
-               sections.isactive as is_active, sections.semesterid,
+               sections.isactive as is_active, sections.semesterid, sections.departmentid,
                LOWER(sections.name) as section_name_lower, LOWER(semesters.name) as semester_name_lower
         FROM sections
         INNER JOIN semesters ON sections.semesterid = semesters.id
@@ -176,7 +177,10 @@ export async function getSectionsWithPagination(
 export async function editSection(newSection: section) {
   try {
     await sql`UPDATE sections
-        SET name = ${newSection.name}, semesterid = ${newSection.semesterid}, isactive = ${newSection.isactive}
+        SET name = ${newSection.name},
+            semesterid = ${newSection.semesterid},
+            departmentid = COALESCE(${newSection.departmentid || null}, departmentid),
+            isactive = ${newSection.isactive ?? true}
         WHERE id = ${newSection.id}`;
     return true;
   } catch (e) {
@@ -239,7 +243,7 @@ export async function getAvailableFaculty(courseid: string, sectionid: string) {
     const faculty = await sql`
       SELECT u.id, u.name, u.email
       FROM users u
-      WHERE u.role = 'faculty' OR u.role = 'admin'
+      WHERE (u.role = 'faculty' OR u.role = 'admin')
         AND u.id NOT IN (
           SELECT fcs.userid
           FROM faculty_courses_section fcs

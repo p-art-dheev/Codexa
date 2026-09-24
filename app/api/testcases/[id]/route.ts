@@ -1,9 +1,14 @@
+import { requireRole } from "@/lib/auth-helpers";
+import { NextResponse } from "next/server";
 import { deleteTestCase } from "@/repository/testcases.repository";
 
 export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const resolvedParams = await params;
     const result = await deleteTestCase(resolvedParams.id);

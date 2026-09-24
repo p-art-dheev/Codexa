@@ -1,7 +1,11 @@
+import { requireAuth } from "@/lib/auth-helpers";
 import { NextResponse } from "next/server";
 import { getAllCourses } from "../../../../repository/course.repository";
 
 export async function GET() {
+  const authCheck = await requireAuth();
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const result = await getAllCourses();
     if (result.status) {
@@ -19,4 +23,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-}
+}

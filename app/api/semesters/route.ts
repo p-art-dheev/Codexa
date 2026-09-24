@@ -1,4 +1,5 @@
-import { NextRequest } from "next/server";
+import { requireRole } from "@/lib/auth-helpers";
+import { NextRequest, NextResponse } from "next/server";
 import {
   getSemestersWithPagination,
   createSemester,
@@ -7,6 +8,9 @@ import {
 } from "@/repository/semester.repository";
 
 export async function GET(req: NextRequest) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { searchParams } = new URL(req.url);
     
@@ -33,6 +37,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: Request) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const body = await req.json();
     const res = await createSemester(body);
@@ -60,6 +67,9 @@ export async function POST(req: Request) {
 }
 
 export async function DELETE(req: Request) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const url = new URL(req.url);
     const id = url.searchParams.get("id");
@@ -99,6 +109,9 @@ export async function DELETE(req: Request) {
 }
 
 export async function PUT(req: Request) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const body = await req.json();
     const res = await editSemester(body);

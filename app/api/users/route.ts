@@ -1,7 +1,11 @@
-import { NextRequest } from "next/server";
+import { requireRole } from "@/lib/auth-helpers";
+import { NextRequest, NextResponse } from "next/server";
 import { getUsersWithPagination } from "@/repository/user.repository";
 
 export async function GET(req: NextRequest) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { searchParams } = new URL(req.url);
     

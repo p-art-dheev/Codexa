@@ -1,10 +1,7 @@
-import { LayoutProps } from "@/.next/types/app/layout";
-import { AppHeader } from "@/components/app-header";
+import type { ReactNode } from "react";
 import { getAuthenticatedUser } from "@/lib/auth-helpers";
-import { getServerSession } from "next-auth";
-import { useSession } from "next-auth/react";
 
-export default async function AdminLayout({ children }: LayoutProps) {
+export default async function AdminLayout({ children }: { children: ReactNode }) {
     const user = await getAuthenticatedUser();
 
   if (user?.role !== "admin") {

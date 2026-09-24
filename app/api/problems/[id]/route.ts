@@ -1,3 +1,5 @@
+import { requireRole, requireAuth } from "@/lib/auth-helpers";
+import { NextResponse } from "next/server";
 import {
   deleteProblem,
   getProblemById,
@@ -8,6 +10,9 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireAuth();
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const {id} = await params;
     const problem = await getProblemById(id);
@@ -42,6 +47,9 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { id } = await params;
     const result = await deleteProblem(id);
@@ -79,6 +87,9 @@ export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const resolvedParams = await params;
     const body = await req.json();

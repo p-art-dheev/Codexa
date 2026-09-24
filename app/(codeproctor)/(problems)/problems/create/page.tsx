@@ -108,14 +108,6 @@ export default function Page() {
     }
   };
 
-  if (!session?.user) {
-    return <h1>Please login first</h1>;
-  }
-
-  if (session.user.role !== "admin" && session.user.role !== "faculty") {
-    return <h1>Access Denied</h1>;
-  }
-
   useEffect(() => {
     fetchTags();
   }, []);
@@ -324,6 +316,16 @@ export default function Page() {
     } finally {
       setIsCreatingTestcase(false);
     }
+  }
+
+  // Role gates must come after every hook call (Rules of Hooks):
+  // returning early before the useEffects above crashed the page once the session loaded.
+  if (!session?.user) {
+    return <h1>Please login first</h1>;
+  }
+
+  if (session.user.role !== "admin" && session.user.role !== "faculty") {
+    return <h1>Access Denied</h1>;
   }
 
   return (

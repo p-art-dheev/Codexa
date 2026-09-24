@@ -109,7 +109,7 @@ export async function createProblem(newProblem: createProblem) {
 export async function getProblemById(id: string) {
   try {
     const problem =
-      await sql`SELECT p.id, p.title, p.description, p.created_at, u.name AS created_by
+      await sql`SELECT p.id, p.title, p.description, p.created_at, u.name AS created_by, p.course
       FROM problems p INNER JOIN users u ON p.created_by = u.id
       WHERE p.id = ${id}`;
 
@@ -176,37 +176,34 @@ export async function awardPointsForProblem(
   points: number
 ) {
   try {
-    const existing =
-      await sql`SELECT is_completed FROM problems_users WHERE userid = ${userId} AND problemid = ${problemId}`;
-
-    if (existing[0]?.is_completed === "solved") {
-      const totals =
-        await sql`SELECT points_earned FROM users WHERE id = ${userId}`;
-      const totalPoints = totals[0]?.points_earned ?? 0;
-      return { awarded: false, totalPoints };
-    }
-
     await sql`
     INSERT INTO problems_users (userid, problemid, is_completed)
     VALUES (${userId}, ${problemId}, 'solved')
     ON CONFLICT (userid, problemid)
     DO UPDATE SET is_completed = 'solved'`;
 
-    await sql`
-    UPDATE users
-    SET points_earned = COALESCE(points_earned, 0) + ${points}
-    WHERE id = ${userId}`;
-
+    // Award at most once per (user, problem): the points log is the source of truth,
+    // so toggling "solved" off and re-submitting cannot farm points.
     const id = crypto.randomUUID();
-    await sql`
-    INSERT INTO user_points_log (id, userid, problemid, points)
-    VALUES (${id}, ${userId}, ${problemId}, ${points})`;
+    const awarded = await sql`
+    WITH ins AS (
+      INSERT INTO user_points_log (id, userid, problemid, points)
+      SELECT ${id}, ${userId}, ${problemId}, ${points}
+      WHERE NOT EXISTS (
+        SELECT 1 FROM user_points_log WHERE userid = ${userId} AND problemid = ${problemId}
+      )
+      RETURNING points
+    )
+    UPDATE users
+    SET points_earned = COALESCE(points_earned, 0) + (SELECT points FROM ins)
+    WHERE id = ${userId} AND EXISTS (SELECT 1 FROM ins)
+    RETURNING points_earned`;
 
     const totals =
       await sql`SELECT points_earned FROM users WHERE id = ${userId}`;
     const totalPoints = totals[0]?.points_earned ?? 0;
 
-    return { awarded: true, totalPoints };
+    return { awarded: awarded.length > 0, totalPoints };
   } catch (error) {
     console.error("Error awarding points:", error);
     throw error;

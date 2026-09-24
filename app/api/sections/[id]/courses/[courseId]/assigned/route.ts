@@ -1,10 +1,15 @@
+import { requireRole } from "@/lib/auth-helpers";
+import { NextResponse } from "next/server";
 import { getAssignedFacultyForACourse } from "@/repository/section.repository";
 
 // GET: Get assigned faculty for a specific course-section combination
 export async function GET(
   request: Request, 
-  { params }: { params: { id: string; courseId: string } }
+  { params }: { params: Promise<{ id: string; courseId: string }> }
 ) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { id: sectionId, courseId } = await params;
     
@@ -20,4 +25,4 @@ export async function GET(
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-}
+}

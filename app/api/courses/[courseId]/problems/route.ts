@@ -1,19 +1,22 @@
-import { requireAuth } from "@/lib/auth-helpers";
-import { createProblemWithTestCases, deleteProblem } from "@/repository/problem.repository";
-import { NextRequest } from "next/server";
+import { requireAuth, requireRole } from "@/lib/auth-helpers";
+import { createProblemWithTestCases, deleteProblem, getProblemById } from "@/repository/problem.repository";
+import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { courseId: string } }
+  { params }: { params: Promise<{ courseId: string }> }
 ) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const user = await requireAuth();
     if (user instanceof Response) {
       return user;
     }
 
-    const { courseId } = params;
+    const { courseId } = await params;
     const body = await req.json();
     const { title, description, testCases } = body;
 
@@ -72,15 +75,18 @@ export async function POST(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { courseId: string } }
+  { params }: { params: Promise<{ courseId: string }> }
 ) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const user = await requireAuth();
     if (user instanceof Response) {
       return user;
     }
 
-    const { courseId } = params;
+    const { courseId } = await params;
     const body = await req.json();
     const { problemId } = body;
 
@@ -88,6 +94,15 @@ export async function DELETE(
       return new Response(
         JSON.stringify({ error: "Problem ID is required" }),
         { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
+
+    // Only allow deleting problems that belong to this course
+    const existing: any = await getProblemById(problemId);
+    if (!existing || existing.course !== courseId) {
+      return new Response(
+        JSON.stringify({ error: "Problem not found in this course" }),
+        { status: 404, headers: { "Content-Type": "application/json" } }
       );
     }
 
@@ -117,4 +132,4 @@ export async function DELETE(
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-}
+}

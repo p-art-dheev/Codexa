@@ -1,6 +1,11 @@
+import { requireRole } from "@/lib/auth-helpers";
+import { NextResponse } from "next/server";
 import sql from "@/lib/db";
 
 export async function GET(){
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
     const n_courses = await sql`SELECT COUNT(*) FROM courses`;
     const n_users = await sql`SELECT COUNT(*) FROM users`;
     const n_problems = await sql`SELECT COUNT(*) FROM problems`;
@@ -18,4 +23,4 @@ export async function GET(){
         n_instructors: n_instructors[0].count,
         n_departments: n_departments[0].count
     }), {status: 200});
-}
+}

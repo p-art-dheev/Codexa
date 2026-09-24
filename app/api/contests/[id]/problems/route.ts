@@ -7,6 +7,7 @@ import {
   removeProblemFromContest,
   updateContestProblemPoints,
   getAvailableProblems,
+  canUserAccessContest,
 } from "@/repository/contest.repository";
 
 // GET /api/contests/[id]/problems - Get all problems for a contest
@@ -22,6 +23,16 @@ export async function GET(
     }
 
     const { id: contestId } = await params;
+
+    if (
+      session.user.role === "student" &&
+      !(await canUserAccessContest(contestId, session.user.id))
+    ) {
+      return NextResponse.json(
+        { error: "You don't have access to this contest" },
+        { status: 403 }
+      );
+    }
     const searchParams = req.nextUrl.searchParams;
     const available = searchParams.get("available") === "true";
 

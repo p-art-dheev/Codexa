@@ -51,9 +51,9 @@ export const authOptions: NextAuthOptions = {
       if (user?.email) {
         const userData =
           await sql`SELECT id, role FROM users WHERE email = ${user.email}`;
-        console.log(userData);
         if (userData.length > 0) {
-          token.userId = userData[0].id;
+          // always a string, whatever the users.id column type is
+          token.userId = String(userData[0].id);
           token.userRole = userData[0].role;
         }
       }

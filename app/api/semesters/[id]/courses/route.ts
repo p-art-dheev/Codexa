@@ -1,3 +1,4 @@
+import { requireRole, requireAuth } from "@/lib/auth-helpers";
 import { NextRequest, NextResponse } from "next/server";
 import {
   getSemesterCourses,
@@ -9,6 +10,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireAuth();
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { id: semesterId } = await params;
     const result = await getSemesterCourses(semesterId);
@@ -34,6 +38,9 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { id: semesterId } = await params;
     const body = await request.json();
@@ -69,6 +76,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { id: semesterId } = await params;
     const body = await request.json();

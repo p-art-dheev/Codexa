@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import {
   getUserContestSubmissions,
   recordContestSubmission,
+  canUserAccessContest,
+  isContestOpen,
 } from "@/repository/contest.repository";
 
 // GET /api/contests/[id]/submissions - Get user's submissions for a contest
@@ -45,7 +47,7 @@ export async function POST(
 
     const { id: contestId } = await params;
     const body = await req.json();
-    const { problemId, isSolved, pointsEarned } = body;
+    const { problemId, isSolved } = body;
 
     if (!problemId) {
       return NextResponse.json(
@@ -54,13 +56,33 @@ export async function POST(
       );
     }
 
+    if (!(await canUserAccessContest(contestId, session.user.id))) {
+      return NextResponse.json(
+        { error: "You don't have access to this contest" },
+        { status: 403 }
+      );
+    }
+
+    if (!(await isContestOpen(contestId))) {
+      return NextResponse.json(
+        { error: "Contest is not open for submissions" },
+        { status: 403 }
+      );
+    }
+
     const submission = await recordContestSubmission(
       contestId,
       session.user.id,
       problemId,
-      isSolved || false,
-      pointsEarned || 0
+      isSolved === true
     );
+
+    if (!submission) {
+      return NextResponse.json(
+        { error: "Problem is not part of this contest" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json({ submission }, { status: 201 });
   } catch (error) {

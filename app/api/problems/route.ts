@@ -1,7 +1,7 @@
-import { requireAuth } from "@/lib/auth-helpers";
+import { requireAuth, requireRole } from "@/lib/auth-helpers";
 import { createProblem, getProblemsWithPagination } from "@/repository/problem.repository";
 import { getServerSession } from "next-auth";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,8 +39,12 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: Request) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
-    const newProblem: createProblem = await req.json();
+    const newProblem = await req.json();
+    newProblem.created_by = authCheck.id;
 
     // Validate required fields
     if (!newProblem.problemid || !newProblem.title || !newProblem.description) {
@@ -78,7 +82,3 @@ export async function POST(req: Request) {
     });
   }
 }
-
-export async function DELETE() {}
-
-export async function PATCH() {}

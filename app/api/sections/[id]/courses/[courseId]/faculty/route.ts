@@ -1,10 +1,15 @@
+import { requireRole } from "@/lib/auth-helpers";
+import { NextResponse } from "next/server";
 import { getAvailableFaculty, assignFacultyToCourse, removeFacultyFromCourse } from "@/repository/section.repository";
 
 // GET: Get available faculty for a specific course-section combination
 export async function GET(
   request: Request, 
-  { params }: { params: { id: string; courseId: string } }
+  { params }: { params: Promise<{ id: string; courseId: string }> }
 ) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { id: sectionId, courseId } = await params;
     
@@ -25,8 +30,11 @@ export async function GET(
 // POST: Assign faculty to a course-section combination
 export async function POST(
   request: Request, 
-  { params }: { params: { id: string; courseId: string } }
+  { params }: { params: Promise<{ id: string; courseId: string }> }
 ) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { id: sectionId, courseId } = await params;
     const { facultyId } = await request.json();
@@ -55,8 +63,11 @@ export async function POST(
 // DELETE: Remove faculty assignment from a course-section combination
 export async function DELETE(
   request: Request, 
-  { params }: { params: { id: string; courseId: string } }
+  { params }: { params: Promise<{ id: string; courseId: string }> }
 ) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { id: sectionId, courseId } = await params;
     const url = new URL(request.url);
@@ -81,4 +92,4 @@ export async function DELETE(
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-}
+}

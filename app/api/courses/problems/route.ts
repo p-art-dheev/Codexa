@@ -1,4 +1,4 @@
-import { requireAuth } from "@/lib/auth-helpers";
+import { requireAuth, requireRole } from "@/lib/auth-helpers";
 import { 
   assignProblemToCourse, 
   unassignProblemFromCourse, 
@@ -6,7 +6,7 @@ import {
   getUnassignedProblems,
   assignMultipleProblems 
 } from "@/repository/course-problem.repository";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
   try {
@@ -49,6 +49,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const user = await requireAuth();
     if (user instanceof Response) {
@@ -93,6 +96,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const user = await requireAuth();
     if (user instanceof Response) {
@@ -121,4 +127,4 @@ export async function DELETE(req: NextRequest) {
       { status: 500, headers: { "Content-Type": "application/json" } }
     );
   }
-}
+}

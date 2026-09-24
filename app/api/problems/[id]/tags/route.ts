@@ -1,3 +1,5 @@
+import { requireRole, requireAuth } from "@/lib/auth-helpers";
+import { NextResponse } from "next/server";
 import {
   addTagToProblem,
   getTagsForProblem,
@@ -8,6 +10,9 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireAuth();
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const resolvedParams = await params;
     const tags = await getTagsForProblem(resolvedParams.id);
@@ -35,6 +40,9 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const resolvedParams = await params;
     const { tagId } = await req.json();
@@ -79,6 +87,9 @@ export async function PUT(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const resolvedParams = await params;
     const { oldTagId, newTagId } = await req.json();
@@ -129,6 +140,9 @@ export async function DELETE(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const resolvedParams = await params;
     const { tagId } = await req.json();

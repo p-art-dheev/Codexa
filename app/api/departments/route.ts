@@ -1,3 +1,4 @@
+import { requireRole } from "@/lib/auth-helpers";
 import { NextResponse, NextRequest } from "next/server";
 import {
   getDepartmentsWithPagination,
@@ -7,6 +8,9 @@ import {
 } from "@/repository/department.repository";
 
 export async function GET(req: NextRequest) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { searchParams } = new URL(req.url);
     
@@ -30,6 +34,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(request: Request) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const body = await request.json();
     const result = await createDepartment(body);
@@ -49,6 +56,9 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const body = await request.json();
     const result = await editDepartment(body);
@@ -68,6 +78,9 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

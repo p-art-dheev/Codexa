@@ -3,6 +3,9 @@ import { requireAuth } from "@/lib/auth-helpers";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request, {params}: {params: Promise<{id: string}>}) {
+  const authCheck = await requireAuth();
+  if (authCheck instanceof NextResponse) return authCheck;
+
     const {id} = await params;
     const {searchParams} = new URL(request.url);
     const language = searchParams.get('language');
@@ -59,4 +62,4 @@ export async function PUT(request: Request, {params}: {params: Promise<{id: stri
         console.error('Error updating template:', error);
         return NextResponse.json({ error: "Failed to update template" }, { status: 500 });
     }
-}
+}

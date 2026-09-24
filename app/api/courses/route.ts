@@ -1,3 +1,4 @@
+import { requireRole } from "@/lib/auth-helpers";
 import { NextResponse, NextRequest } from "next/server";
 // Course API endpoints
 import {
@@ -8,6 +9,9 @@ import {
 } from "../../../repository/course.repository";
 
 export async function GET(req: NextRequest) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { searchParams } = new URL(req.url);
     const page = parseInt(searchParams.get("page") || "1");
@@ -27,6 +31,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(request: Request) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const body = await request.json();
     const result = await createCourse(body);
@@ -45,6 +52,9 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const body = await request.json();
     const result = await editCourse(body);
@@ -63,6 +73,9 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");

@@ -418,25 +418,40 @@ export async function recordContestSubmission(
   contestId: string,
   userId: string,
   problemId: string,
-  isSolved: boolean,
-  pointsEarned: number = 0
+  isSolved: boolean
 ) {
   try {
+    // Points come from the contest configuration, never from the client.
+    // A solved submission is never downgraded by a later unsolved one.
     const result = await sql`
       INSERT INTO contest_submissions (contest_id, user_id, problem_id, is_solved, points_earned)
-      VALUES (${contestId}, ${userId}, ${problemId}, ${isSolved}, ${pointsEarned})
+      SELECT ${contestId}, ${userId}, ${problemId}, ${isSolved},
+             CASE WHEN ${isSolved}::boolean THEN cp.points ELSE 0 END
+      FROM contests_problems cp
+      WHERE cp.contest_id = ${contestId} AND cp.problem_id = ${problemId}
       ON CONFLICT (contest_id, user_id, problem_id)
-      DO UPDATE SET 
-        is_solved = ${isSolved},
-        points_earned = ${pointsEarned},
-        submission_time = now()
+      DO UPDATE SET
+        is_solved = contest_submissions.is_solved OR EXCLUDED.is_solved,
+        points_earned = GREATEST(contest_submissions.points_earned, EXCLUDED.points_earned),
+        submission_time = CASE WHEN contest_submissions.is_solved
+                               THEN contest_submissions.submission_time
+                               ELSE now() END
       RETURNING *
     `;
-    return result[0];
+    return result[0] || null;
   } catch (error) {
     console.error("Error recording contest submission:", error);
     throw error;
   }
+}
+
+// Is the contest currently open for submissions?
+export async function isContestOpen(contestId: string) {
+  const rows = await sql`
+    SELECT 1 FROM contests
+    WHERE id = ${contestId} AND now() BETWEEN start_time AND end_time
+  `;
+  return rows.length > 0;
 }
 
 // Get user's contest submissions

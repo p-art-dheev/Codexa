@@ -1,10 +1,14 @@
-import { NextRequest } from 'next/server';
+import { requireRole } from "@/lib/auth-helpers";
+import { NextRequest, NextResponse } from "next/server";
 import { getAssignedUsers, getUnassignedUsers, assignUserToSection, unassignUserFromSection } from '@/repository/section.repository';
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   const { id: sectionId } = await params;
   const searchParams = request.nextUrl.searchParams;
   
@@ -28,6 +32,9 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   const { id: sectionId } = await params;
   const { userId } = await request.json();
   
@@ -49,6 +56,9 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   const { id: sectionId } = await params;
   const { userId } = await request.json();
   
@@ -64,4 +74,4 @@ export async function DELETE(
     console.error('Error unassigning user:', error);
     return Response.json({ error: 'Failed to unassign user' }, { status: 500 });
   }
-}
+}

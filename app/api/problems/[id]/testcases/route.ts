@@ -1,3 +1,5 @@
+import { requireRole, requireAuth } from "@/lib/auth-helpers";
+import { NextResponse } from "next/server";
 import {
   createAndAssignTestcase,
   getTestCasesByProblemId,
@@ -7,6 +9,9 @@ export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireRole("admin", "faculty");
+  if (authCheck instanceof NextResponse) return authCheck;
+
   const resolvedParams = await params;
   const { id } = resolvedParams;
   const newTestCase = await req.json();
@@ -26,6 +31,9 @@ export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authCheck = await requireAuth();
+  if (authCheck instanceof NextResponse) return authCheck;
+
   const resolvedParams = await params;
   const { id } = resolvedParams;
   const testCases = await getTestCasesByProblemId(id);

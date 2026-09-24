@@ -112,11 +112,14 @@ export default function Page() {
   }
 
   async function handleCreateSection() {
+    if (!selectedSection.trim() || !selectedSemester) {
+      toast.error("Section name and semester are required");
+      return;
+    }
     setOpenDialog(false);
-    console.log(selectedDepartment, selectedSemester, selectedSection);
 
     const newSection: createSectionType = {
-      name: selectedSection,
+      name: selectedSection.trim(),
       semesterid: selectedSemester,
       departmentid: selectedDepartment,
       isactive: isActive,
@@ -131,9 +134,10 @@ export default function Page() {
     });
 
     if (response.ok) {
+      toast.success("Section created successfully");
       refetchData();
     } else {
-      console.error("Error creating section");
+      toast.error("Failed to create section");
     }
   }
 
