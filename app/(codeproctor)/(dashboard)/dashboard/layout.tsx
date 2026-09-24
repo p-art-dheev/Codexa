@@ -1,4 +1,6 @@
 import { getAuthenticatedUser } from "@/lib/auth-helpers";
+import { StatusScreen } from "@/components/status-screen";
+import { SignInButton } from "@/components/action-buttons";
 import { ReactNode } from "react";
 
 interface DashboardLayoutProps {
@@ -9,7 +11,6 @@ interface DashboardLayoutProps {
 }
 
 export default async function DashboardLayout({
-  children,
   admin,
   faculty,
   student,
@@ -18,39 +19,25 @@ export default async function DashboardLayout({
 
   if (!user) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Authentication Required</h1>
-          <p className="text-muted-foreground">
-            Please sign in to access the dashboard.
-          </p>
-        </div>
-      </div>
+      <StatusScreen
+        kind="auth"
+        title="Sign in to see your dashboard"
+        description="Use your university Google account to continue."
+        action={<SignInButton callbackUrl="/dashboard" />}
+      />
     );
   }
 
   // Render the appropriate dashboard based on user role
-  if (user.role === "admin") {
-    return <>{admin}</>;
-  }
+  if (user.role === "admin") return <>{admin}</>;
+  if (user.role === "faculty") return <>{faculty}</>;
+  if (user.role === "student") return <>{student}</>;
 
-  if (user.role === "faculty") {
-    return <>{faculty}</>;
-  }
-
-  if (user.role === "student") {
-    return <>{student}</>;
-  }
-
-  // Fallback for unknown roles
   return (
-    <div className="flex flex-1 items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-        <p className="text-muted-foreground">
-          Your role ({user.role}) does not have access to the dashboard.
-        </p>
-      </div>
-    </div>
+    <StatusScreen
+      kind="forbidden"
+      title="No dashboard for this role"
+      description={`Your role (${user.role ?? "unknown"}) does not have a dashboard yet. Contact an administrator to update your access.`}
+    />
   );
 }

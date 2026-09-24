@@ -230,14 +230,14 @@ export default function Page() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-bold mb-6 text-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
           Section Management
         </h1>
         <Button variant="default" onClick={handleDialogOpen}>
           Create Section
         </Button>
       </div>
-      <div className="rounded-lg border bg-card shadow-sm p-4">
+      <div>
         <DataTable
           columns={createSectionColumns(
             refetchData,

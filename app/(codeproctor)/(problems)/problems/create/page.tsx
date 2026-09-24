@@ -1,4 +1,5 @@
 "use client";
+import { StatusScreen } from "@/components/status-screen";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -321,17 +322,17 @@ export default function Page() {
   // Role gates must come after every hook call (Rules of Hooks):
   // returning early before the useEffects above crashed the page once the session loaded.
   if (!session?.user) {
-    return <h1>Please login first</h1>;
+    return <StatusScreen kind="auth" title="Sign in required" description="Please sign in to create problems." />;
   }
 
   if (session.user.role !== "admin" && session.user.role !== "faculty") {
-    return <h1>Access Denied</h1>;
+    return <StatusScreen kind="forbidden" title="Access denied" description="Only administrators can create problems." />;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2 text-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight mb-2 sm:text-3xl text-foreground">
           Create Problem
         </h1>
         <p className="text-muted-foreground">

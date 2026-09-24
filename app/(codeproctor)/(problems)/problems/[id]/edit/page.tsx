@@ -444,7 +444,7 @@ export default function EditProblemPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold mb-2 text-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight mb-2 sm:text-3xl text-foreground">
           Edit Problem
         </h1>
         <p className="text-muted-foreground">

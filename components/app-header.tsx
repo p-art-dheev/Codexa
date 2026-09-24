@@ -1,130 +1,91 @@
 "use client";
-import { Code, LogOut } from "lucide-react";
-import { signOut, useSession, signIn } from "next-auth/react";
+
+import Link from "next/link";
+import { Fragment } from "react";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { ChevronRight, Flame } from "lucide-react";
+
 import { Button } from "./ui/button";
 import { SidebarTrigger } from "./ui/sidebar";
-import Link from "next/link";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { Separator } from "./ui/separator";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { ModeToggle } from "./mode-toggle";
+import { UserMenu } from "./user-menu";
+import { getBreadcrumbs } from "@/lib/navigation";
+import { signInWithGoogle } from "@/lib/accounts";
+import { usePoints } from "@/hooks/use-points";
+
+function PointsChip() {
+  const points = usePoints();
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span
+          className="hidden h-8 items-center gap-1.5 rounded-full border bg-card px-3 text-sm font-medium tabular-nums shadow-xs sm:inline-flex"
+          aria-label={`${points ?? 0} points`}
+        >
+          <Flame className="size-4 text-orange-500" />
+          {points ?? "—"}
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>Points earned — keep solving to earn more</TooltipContent>
+    </Tooltip>
+  );
+}
 
 export function AppHeader() {
-  const { data: session } = useSession();
-  const [points, setPoints] = useState<number | null>(null);
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    let mounted = true;
-    async function fetchPoints() {
-      try {
-        const res = await fetch("/api/users/me/points");
-        if (res.ok) {
-          const data = await res.json();
-          if (mounted) setPoints(data.points ?? 0);
-        }
-      } catch (e) {
-        console.warn("Failed to fetch user points", e);
-      }
-    }
-
-    function onPointsUpdated(e: any) {
-      const val = e?.detail?.totalPoints;
-      if (typeof val === "number") setPoints(val);
-      else fetchPoints();
-    }
-
-    if (session) fetchPoints();
-    window.addEventListener("pointsUpdated", onPointsUpdated);
-    return () => {
-      mounted = false;
-      window.removeEventListener("pointsUpdated", onPointsUpdated);
-    };
-  }, [session]);
+  const { data: session, status } = useSession();
+  const pathname = usePathname();
+  const crumbs = getBreadcrumbs(pathname);
 
   return (
-    <header className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="px-2 py-4 flex justify-between items-center">
-        <div className="flex items-center space-x-3">
-          <SidebarTrigger />
-          <Code className="w-6 h-6 text-primary" />
-          <Link href={"/"}>
-            <h1 className="text-2xl font-bold text-foreground">CodeProctor</h1>
-          </Link>
-        </div>
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-2 border-b bg-background/80 px-3 backdrop-blur-xl supports-[backdrop-filter]:bg-background/65 sm:px-4">
+      <SidebarTrigger className="-ml-1 size-8" />
+      <Separator orientation="vertical" className="mx-1 !h-5" />
 
-        {/* Conditional User Section */}
-        {session ? (
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <div>
-                <Image
-                  src={session.user?.image || "/image.png"}
-                  alt="Profile"
-                  width={100}
-                  height={100}
-                  priority
-                  className="w-9 h-9 rounded-full ring-2 ring-border"
+      <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
+        <ol className="flex min-w-0 items-center gap-1 text-sm">
+          {crumbs.map((c, i) => (
+            <Fragment key={c.href}>
+              {i > 0 && (
+                <ChevronRight
+                  aria-hidden
+                  className="size-3.5 shrink-0 text-muted-foreground/60"
                 />
-              </div>
-              <div className="hidden sm:block">
-                <div className="flex items-center gap-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      {session.user?.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {session.user?.email}
-                    </p>
-                  </div>
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setOpen((s) => !s)}
-                      aria-expanded={open}
-                      aria-label="Show my points"
-                    >
-                      <span className="text-white">🔥</span>
-                      <span> {points ?? "-"} </span>
-                    </button>
+              )}
+              <li
+                className={
+                  c.isLast
+                    ? "truncate font-medium text-foreground"
+                    : "hidden truncate text-muted-foreground md:block"
+                }
+              >
+                {c.isLast ? (
+                  <span aria-current="page">{c.label}</span>
+                ) : (
+                  <Link
+                    href={c.href}
+                    className="rounded transition-colors hover:text-foreground"
+                  >
+                    {c.label}
+                  </Link>
+                )}
+              </li>
+            </Fragment>
+          ))}
+        </ol>
+      </nav>
 
-                    {/* Popover */}
-                    {open && (
-                      <div className="absolute right-0 mt-12 w-56 z-50 bg-card border rounded-md shadow-lg p-3 text-sm">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="text-amber-400">🔥</span>
-                            <span className="font-medium">Points</span>
-                          </div>
-                          <button
-                            className="text-xs text-muted-foreground"
-                            onClick={() => setOpen(false)}
-                          >
-                            Close
-                          </button>
-                        </div>
-                        <div className="mt-2 text-sm text-foreground">
-                          Total points:{" "}
-                          <span className="font-mono ml-1">{points ?? 0}</span>
-                        </div>
-                        <div className="mt-2 text-xs text-muted-foreground">
-                          Keep solving problems to earn more points!
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => signOut({ callbackUrl: "/" })}
-            >
-              <LogOut className="w-4 h-4" />
-              Sign out
-            </Button>
-          </div>
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        {session && <PointsChip />}
+        <ModeToggle />
+        {session ? (
+          <UserMenu />
+        ) : status === "loading" ? (
+          <span className="size-8 animate-pulse rounded-full bg-muted" />
         ) : (
-          <Button variant="default" onClick={() => signIn("google")}>
+          <Button size="sm" onClick={() => signInWithGoogle(pathname)}>
             Sign in
           </Button>
         )}

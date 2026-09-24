@@ -160,8 +160,9 @@ export default function ContestsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-lg">Loading contests...</div>
+      <div className="flex flex-1 items-center justify-center py-24 text-sm text-muted-foreground">
+        <div className="mr-2 size-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+        Loading contests…
       </div>
     );
   }
@@ -170,9 +171,9 @@ export default function ContestsPage() {
   if (isAdmin) {
     return (
       <div>
-        <div className="flex items-center justify-between p-4">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <CardTitle className="text-3xl">Contests</CardTitle>
+            <CardTitle className="text-2xl font-semibold tracking-tight sm:text-3xl">Contests</CardTitle>
             <CardDescription>
               Manage coding contests and quizzes
             </CardDescription>
@@ -312,7 +313,7 @@ export default function ContestsPage() {
   return (
     <div className="container mx-auto py-10">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">My Contests</h1>
+        <h1 className="text-2xl font-semibold tracking-tight mb-2 sm:text-3xl">My Contests</h1>
         <p className="text-muted-foreground">
           View and participate in assigned coding contests
         </p>

@@ -109,7 +109,7 @@ export default function CourseProblemsPage() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <div>
-            <h1 className="text-3xl font-bold">Course Problems</h1>
+            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Course Problems</h1>
             <div className="flex items-center gap-4 mt-2">
               <p className="text-muted-foreground">
                 {courseName || `Course ${courseId}`} • {problems.length}{" "}

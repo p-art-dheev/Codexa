@@ -1,58 +1,49 @@
 "use client";
-import { Code, LogOut } from "lucide-react";
-import { signOut, useSession, signIn } from "next-auth/react";
-import { Button } from "./ui/button";
 import Link from "next/link";
-import Image from "next/image";
+import { useSession } from "next-auth/react";
+import { Button } from "./ui/button";
+import { Brand } from "./brand";
+import { ModeToggle } from "./mode-toggle";
+import { UserMenu } from "./user-menu";
+import { signInWithGoogle } from "@/lib/accounts";
 
 export function Header() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
   return (
-    <header className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="px-2 py-4 flex justify-between items-center">
-        <div className="flex items-center space-x-3">
-          <Code className="w-6 h-6 text-primary" />
-          <Link href={"/"}>
-            <h1 className="text-2xl font-bold text-foreground">CodeProctor</h1>
-          </Link>
-        </div>
+    <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/55">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+        <Brand />
 
-        {/* Conditional User Section */}
-        {session ? (
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-3">
-              <Image
-                src={session.user?.image || "/image.png"}
-                alt="Profile"
-                width={100}
-                height={100}
-                priority
-                className="w-9 h-9 rounded-full ring-2 ring-border"
-              />
-              <div className="hidden sm:block">
-                <p className="text-sm font-medium text-foreground">
-                  {session.user?.name}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {session.user?.email}
-                </p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => signOut({ callbackUrl: "/" })}
-            >
-              <LogOut className="w-4 h-4" />
-              Sign out
+        <nav
+          aria-label="Primary"
+          className="hidden items-center gap-1 text-sm text-muted-foreground md:flex"
+        >
+          <a href="#features" className="rounded-md px-3 py-1.5 transition-colors hover:text-foreground">
+            Features
+          </a>
+          <a href="#roles" className="rounded-md px-3 py-1.5 transition-colors hover:text-foreground">
+            For your campus
+          </a>
+        </nav>
+
+        <div className="flex items-center gap-2">
+          <ModeToggle />
+          {session ? (
+            <>
+              <Button asChild size="sm" variant="outline" className="hidden sm:inline-flex">
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+              <UserMenu />
+            </>
+          ) : status === "loading" ? (
+            <span className="h-8 w-20 animate-pulse rounded-md bg-muted" />
+          ) : (
+            <Button size="sm" onClick={() => signInWithGoogle()}>
+              Sign in
             </Button>
-          </div>
-        ) : (
-          <Button variant="default" onClick={() => signIn("google")}>
-            Sign in
-          </Button>
-        )}
+          )}
+        </div>
       </div>
     </header>
   );

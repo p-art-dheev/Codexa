@@ -6,6 +6,9 @@ import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { Plus } from "lucide-react";
+import { PageHeader } from "@/components/page-header";
+import { StatusScreen } from "@/components/status-screen";
 
 export default function ProblemsPage() {
   const [data, setData] = useState<problem[]>([]);
@@ -68,24 +71,35 @@ export default function ProblemsPage() {
   const columns = createColumns(refetchData, router, user?.role || undefined);
 
   if (!user) {
-    return <h1>Please login first</h1>;
+    return (
+      <StatusScreen
+        kind="auth"
+        title="Sign in to browse problems"
+        description="Use your university Google account to continue."
+      />
+    );
   }
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6 text-foreground flex justify-between">
-        <div>Problems Page</div>
-        {user.role === "admin" && (
-          <Button onClick={() => router.push("/problems/create")}>
-            Create Problem
-          </Button>
-        )}
-      </h1>
-      <div className="rounded-lg border bg-card shadow-sm">
+      <PageHeader
+        title="Problems"
+        description="Practise, attempt and track coding problems. Search by title to find one quickly."
+        actions={
+          user.role === "admin" && (
+            <Button onClick={() => router.push("/problems/create")}>
+              <Plus />
+              Create problem
+            </Button>
+          )
+        }
+      />
+      <div>
         <DataTable
           columns={columns}
           data={data}
           searchColumn="title"
+          searchPlaceholder="Search problems…"
           manualPagination={true}
           manualSorting={true}
           manualFiltering={true}

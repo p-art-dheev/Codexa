@@ -148,7 +148,7 @@ export default function SectionUsersPage() {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Section User Management</h1>
+        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Section User Management</h1>
         <div className="flex items-center space-x-4 text-sm text-muted-foreground">
           <div className="flex items-center space-x-1">
             <Users className="h-4 w-4" />
@@ -184,7 +184,7 @@ export default function SectionUsersPage() {
               </Button>
             )}
           </div>
-          <div className="border rounded-lg">
+          <div>
             <DataTable
               columns={assignedColumns}
               data={assignedUsers}
@@ -216,7 +216,7 @@ export default function SectionUsersPage() {
               </Button>
             )}
           </div>
-          <div className="border rounded-lg">
+          <div>
             <DataTable
               columns={unassignedColumns}
               data={unassignedUsers}

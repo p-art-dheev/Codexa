@@ -1,4 +1,5 @@
 "use client";
+import { PageHeader } from "@/components/page-header";
 import { user } from "@/types/types";
 import { createColumns } from "./columns";
 import { useEffect, useState } from "react";
@@ -61,10 +62,11 @@ export default function UsersPage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6 text-foreground">
-        User Management
-      </h1>
-      <div className="rounded-lg border bg-card shadow-sm">
+      <PageHeader
+        title="Users"
+        description="Everyone with access to the platform. Change roles to grant faculty or admin permissions."
+      />
+      <div>
         <DataTable 
           columns={columns} 
           data={data} 

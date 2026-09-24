@@ -310,7 +310,7 @@ export default function ContestDetailsPage() {
 
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="text-3xl font-bold mb-2">{contest.title}</h1>
+            <h1 className="text-2xl font-semibold tracking-tight mb-2 sm:text-3xl">{contest.title}</h1>
             {contest.description && (
               <p className="text-muted-foreground mb-4">
                 {contest.description}

@@ -284,7 +284,7 @@ export default function TakeContestPage() {
                     <Clock className="h-4 w-4" />
                     <span className="text-sm">Time Remaining</span>
                   </div>
-                  <div className="text-3xl font-bold">{timeRemaining}</div>
+                  <div className="text-2xl font-semibold tracking-tight sm:text-3xl">{timeRemaining}</div>
                 </div>
               )}
 

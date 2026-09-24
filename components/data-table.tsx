@@ -13,15 +13,9 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, Inbox, Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -36,6 +30,7 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchColumn?: string;
+  searchPlaceholder?: string;
   manualPagination?: boolean;
   manualSorting?: boolean;
   manualFiltering?: boolean;
@@ -51,12 +46,16 @@ interface DataTableProps<TData, TValue> {
   onGlobalFilterChange?: (filter: string) => void;
   onRowSelectionChange?: (selectedRows: TData[]) => void;
   loading?: boolean;
+  /** Extra controls shown to the right of the search box. */
+  toolbar?: React.ReactNode;
+  emptyMessage?: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchColumn,
+  searchPlaceholder = "Search…",
   manualPagination = false,
   manualSorting = false,
   manualFiltering = false,
@@ -68,6 +67,8 @@ export function DataTable<TData, TValue>({
   onGlobalFilterChange,
   onRowSelectionChange,
   loading = false,
+  toolbar,
+  emptyMessage = "No results found.",
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -78,7 +79,7 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({});
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
-    pageSize: 7,
+    pageSize: 10,
   });
 
   const table = useReactTable({
@@ -119,39 +120,68 @@ export function DataTable<TData, TValue>({
     }
   }, [rowSelection, onRowSelectionChange, table]);
 
-  return (
-    <div className="w-full p-4">
-      <div className="flex items-center py-4">
-        {searchColumn && (
-          <Input
-            placeholder={`Search...`}
-            value={
-              onGlobalFilterChange && state?.globalFilter !== undefined
-                ? state.globalFilter
-                : (table.getColumn(searchColumn)?.getFilterValue() as string) ??
-                  ""
-            }
-            onChange={(event) => {
-              if (onGlobalFilterChange) {
-                onGlobalFilterChange(event.target.value);
-              } else {
-                table
-                  .getColumn(searchColumn)
-                  ?.setFilterValue(event.target.value);
-              }
-            }}
-            className="max-w-sm"
-          />
-        )}
+  const searchValue =
+    onGlobalFilterChange && state?.globalFilter !== undefined
+      ? (state.globalFilter as string)
+      : ((table.getColumn(searchColumn ?? "")?.getFilterValue() as string) ??
+        "");
 
-      </div>
-      <div className="overflow-hidden rounded-md border">
+  const setSearch = (value: string) => {
+    if (onGlobalFilterChange) onGlobalFilterChange(value);
+    else if (searchColumn) table.getColumn(searchColumn)?.setFilterValue(value);
+  };
+
+  const rows = table.getRowModel().rows;
+  const selectedCount = table.getFilteredSelectedRowModel().rows.length;
+  const totalCount = manualPagination
+    ? rowCount
+    : table.getFilteredRowModel().rows.length;
+  const { pageIndex, pageSize } = table.getState().pagination;
+  const from = totalCount === 0 ? 0 : pageIndex * pageSize + 1;
+  const to = Math.min(totalCount, (pageIndex + 1) * pageSize);
+  const pages = Math.max(1, table.getPageCount());
+
+  return (
+    <div className="w-full overflow-hidden rounded-xl border bg-card shadow-xs">
+      {(searchColumn || toolbar) && (
+        <div className="flex flex-col gap-2 p-3 sm:flex-row sm:items-center">
+          {searchColumn && (
+            <div className="relative w-full sm:max-w-xs">
+              <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                aria-label="Search table"
+                placeholder={searchPlaceholder}
+                value={searchValue}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-9 pr-8 pl-8 [&::-webkit-search-cancel-button]:hidden"
+              />
+              {searchValue && (
+                <button
+                  type="button"
+                  aria-label="Clear search"
+                  onClick={() => setSearch("")}
+                  className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-0.5 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="size-3.5" />
+                </button>
+              )}
+            </div>
+          )}
+          {toolbar && <div className="flex items-center gap-2 sm:ml-auto">{toolbar}</div>}
+        </div>
+      )}
+
+      <div className="overflow-x-auto border-y">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/40">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
+                  <TableHead
+                    key={header.id}
+                    className="h-10 font-medium text-muted-foreground first:pl-4 last:pr-4"
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -164,14 +194,28 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+            {loading && rows.length === 0 ? (
+              Array.from({ length: 5 }).map((_, r) => (
+                <TableRow key={`sk-${r}`} className="hover:bg-transparent">
+                  {columns.map((_, c) => (
+                    <TableCell key={c} className="py-3.5 first:pl-4 last:pr-4">
+                      <div
+                        className="h-4 animate-pulse rounded bg-muted"
+                        style={{ width: `${50 + ((r * 7 + c * 13) % 40)}%` }}
+                      />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : rows.length ? (
+              rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() ? "selected" : undefined}
+                  className={loading ? "opacity-60 transition-opacity" : undefined}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="py-3 first:pl-4 last:pr-4">
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -181,50 +225,61 @@ export function DataTable<TData, TValue>({
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  {loading ? "Loading..." : "No results."}
+              <TableRow className="hover:bg-transparent">
+                <TableCell colSpan={columns.length} className="h-40">
+                  <div className="flex flex-col items-center justify-center gap-2 text-center text-muted-foreground">
+                    <Inbox className="size-8 opacity-60" />
+                    <p className="text-sm">
+                      {searchValue ? `No matches for “${searchValue}”.` : emptyMessage}
+                    </p>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <div className="flex items-center space-x-6 lg:space-x-8">
-          <div className="text-muted-foreground flex items-center space-x-2 text-sm">
+
+      <div className="flex flex-col-reverse gap-3 p-3 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="tabular-nums">
+          {selectedCount > 0 ? (
             <span>
-              {table.getFilteredSelectedRowModel().rows.length} of{" "}
-              {table.getFilteredRowModel().rows.length} row(s) selected.
+              <span className="font-medium text-foreground">{selectedCount}</span> selected ·{" "}
             </span>
-          </div>
-          <div className="text-muted-foreground flex items-center space-x-2 text-sm">
-            <span>
-              Page {table.getState().pagination.pageIndex + 1} of{" "}
-              {table.getPageCount()}
-            </span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </Button>
-          </div>
+          ) : null}
+          {totalCount > 0 ? (
+            <>
+              Showing <span className="font-medium text-foreground">{from}–{to}</span> of{" "}
+              <span className="font-medium text-foreground">{totalCount}</span>
+            </>
+          ) : (
+            "No rows"
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="mr-1 tabular-nums">
+            Page {pageIndex + 1} of {pages}
+          </span>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            aria-label="Previous page"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ChevronLeft />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-8"
+            aria-label="Next page"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            <ChevronRight />
+          </Button>
         </div>
       </div>
     </div>

@@ -181,7 +181,7 @@ export default function SemesterCoursesPage() {
     <div className="container mx-auto py-6">
       <div className="flex items-center gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             Semester Courses
           </h1>
           {semester && (

@@ -193,7 +193,7 @@ export default function DepartmentsPage() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
           Department Management
         </h1>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -246,7 +246,7 @@ export default function DepartmentsPage() {
           </DialogContent>
         </Dialog>
       </div>
-      <div className="rounded-lg border bg-card shadow-sm">
+      <div>
         <DataTable
           columns={createDepartmentColumns(
             refetchData,

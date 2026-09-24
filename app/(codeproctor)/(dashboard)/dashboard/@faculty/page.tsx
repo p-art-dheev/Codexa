@@ -3,28 +3,31 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  BookOpen,
-  Users,
-  FileText,
-  GraduationCap,
-  Calendar,
-  ArrowRight,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  XCircle,
   AlertCircle,
-  ExternalLink,
+  ArrowRight,
+  BookOpen,
+  CheckCircle2,
+  Clock,
+  Code2,
+  GraduationCap,
+  ListChecks,
+  Trophy,
+  UsersRound,
+  XCircle,
 } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { StatusScreen } from "@/components/status-screen";
+import {
+  ActionCard,
+  DashboardSkeleton,
+  EmptyCard,
+  Greeting,
+  IconTile,
+  SectionTitle,
+  StatCard,
+} from "@/components/dashboard/dashboard-kit";
+import { cn } from "@/lib/utils";
 
 interface Course {
   id: string;
@@ -53,67 +56,59 @@ interface DashboardData {
 
 const quickActions = [
   {
-    title: "View All Problems",
+    title: "Problems",
     description: "Browse and manage coding problems",
     href: "/problems",
-    icon: FileText,
-    iconColor: "text-blue-600",
-    bgColor: "bg-blue-50 dark:bg-blue-950/20",
+    icon: ListChecks,
+    tone: "primary" as const,
   },
   {
-    title: "My Courses",
-    description: "Manage your assigned courses",
-    href: "/my-courses",
-    icon: BookOpen,
-    iconColor: "text-green-600",
-    bgColor: "bg-green-50 dark:bg-green-950/20",
+    title: "Contests",
+    description: "Schedule and monitor contests",
+    href: "/contests",
+    icon: Trophy,
+    tone: "warning" as const,
   },
   {
-    title: "Code Editor",
-    description: "Test and create code solutions",
+    title: "Code editor",
+    description: "Test and draft reference solutions",
     href: "/editor",
-    icon: GraduationCap,
-    iconColor: "text-purple-600",
-    bgColor: "bg-purple-50 dark:bg-purple-950/20",
+    icon: Code2,
+    tone: "sky" as const,
   },
 ];
 
-const getStatusIcon = (status: string) => {
+function statusMeta(status: string) {
   switch (status.toLowerCase()) {
     case "accepted":
     case "correct":
-      return <CheckCircle className="h-4 w-4 text-green-500" />;
+      return { Icon: CheckCircle2, cls: "text-success bg-success/10" };
     case "wrong answer":
     case "failed":
-      return <XCircle className="h-4 w-4 text-red-500" />;
+      return { Icon: XCircle, cls: "text-destructive bg-destructive/10" };
     case "pending":
     case "running":
-      return <Clock className="h-4 w-4 text-yellow-500" />;
+      return { Icon: Clock, cls: "text-warning bg-warning/15" };
     default:
-      return <AlertCircle className="h-4 w-4 text-gray-500" />;
+      return { Icon: AlertCircle, cls: "text-muted-foreground bg-muted" };
   }
-};
+}
 
-const getStatusBadgeVariant = (status: string) => {
-  switch (status.toLowerCase()) {
-    case "accepted":
-    case "correct":
-      return "default";
-    case "wrong answer":
-    case "failed":
-      return "destructive";
-    case "pending":
-    case "running":
-      return "secondary";
-    default:
-      return "outline";
-  }
-};
+function timeAgo(iso: string) {
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (Number.isNaN(diff)) return "";
+  if (diff < 60) return "just now";
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
 
 export default function FacultyDashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { data: session } = useSession();
+  const user = session?.user;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -136,234 +131,122 @@ export default function FacultyDashboard() {
     fetchData();
   }, []);
 
-  const { data: session } = useSession();
-  const user = session?.user;
+  if (loading) return <DashboardSkeleton />;
 
-  if (loading) {
+  if (error || !data) {
     return (
-      <div className="space-y-8 p-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <div className="h-8 w-64 bg-muted animate-pulse rounded"></div>
-            <div className="h-4 w-96 bg-muted animate-pulse rounded"></div>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="pb-2">
-                <div className="h-4 w-24 bg-muted animate-pulse rounded"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 w-16 bg-muted animate-pulse rounded"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+      <StatusScreen
+        kind="error"
+        title="Couldn't load your dashboard"
+        description={error ?? "Something went wrong."}
+        action={<Button onClick={() => location.reload()}>Try again</Button>}
+      />
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-center text-red-600">Error</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-center text-muted-foreground">{error}</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  const statsCards = data
-    ? [
-        {
-          title: "My Courses",
-          value: data.statistics.n_courses,
-          icon: BookOpen,
-          color: "text-blue-600",
-        },
-        {
-          title: "Sections",
-          value: data.statistics.n_sections,
-          icon: Users,
-          color: "text-green-600",
-        },
-        {
-          title: "Students",
-          value: data.statistics.n_students,
-          icon: GraduationCap,
-          color: "text-purple-600",
-        },
-        {
-          title: "Problems",
-          value: data.statistics.n_problems,
-          icon: FileText,
-          color: "text-orange-600",
-        },
-      ]
-    : [];
+  const s = data.statistics;
+  const activity = data.recent_activity ?? [];
 
   return (
-    <div className="space-y-8 p-6">
-      {/* Welcome Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Welcome back, {user?.name}! 👋
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Here's an overview of your courses and recent activity.
-          </p>
+    <div className="space-y-8">
+      <Greeting
+        name={user?.name}
+        subtitle="Here's an overview of your courses and recent activity."
+        badge={
+          <span className="inline-flex items-center gap-1.5 self-start rounded-full border border-chart-2/30 bg-chart-2/10 px-3 py-1 text-xs font-medium text-chart-2 sm:self-auto">
+            <GraduationCap className="size-3.5" />
+            Faculty
+          </span>
+        }
+      />
+
+      <section>
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+          <StatCard label="Courses" value={s.n_courses} icon={BookOpen} tone="primary" />
+          <StatCard label="Sections" value={s.n_sections} icon={UsersRound} tone="success" />
+          <StatCard label="Students" value={s.n_students} icon={GraduationCap} tone="pink" />
+          <StatCard label="Problems" value={s.n_problems} icon={ListChecks} tone="warning" />
         </div>
-        <Badge variant="secondary" className="flex items-center gap-2">
-          <GraduationCap className="h-4 w-4" />
-          Faculty Dashboard
-        </Badge>
+      </section>
+
+      <div className={cn("grid gap-8", activity.length > 0 && "xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]")}>
+        <section>
+          <SectionTitle
+            action={
+              data.courses.length > 0 && (
+                <Button asChild variant="ghost" size="sm">
+                  <Link href="/my-courses">View all</Link>
+                </Button>
+              )
+            }
+          >
+            My courses
+          </SectionTitle>
+          {data.courses.length === 0 ? (
+            <EmptyCard
+              icon={BookOpen}
+              title="No courses assigned"
+              description="Once an administrator assigns you to a course section, it will show up here with quick access to problems and students."
+            />
+          ) : (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {data.courses.map((course, i) => (
+                <Link
+                  key={`${course.id}-${i}`}
+                  href={`/my-courses/${course.id}/problems`}
+                  className="group flex items-start gap-3 rounded-xl border bg-card p-4 shadow-xs transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                >
+                  <IconTile icon={BookOpen} tone="primary" />
+                  <div className="min-w-0 flex-1">
+                    <p className="line-clamp-2 font-medium">{course.name}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {course.section_name} · {course.semester_name}
+                    </p>
+                  </div>
+                  <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {activity.length > 0 && (
+          <section>
+            <SectionTitle>Recent submissions</SectionTitle>
+            <ul className="divide-y rounded-xl border bg-card shadow-xs">
+              {activity.slice(0, 8).map((a) => {
+                const { Icon, cls } = statusMeta(a.status);
+                return (
+                  <li key={a.id} className="flex items-start gap-3 p-3">
+                    <span className={cn("mt-0.5 grid size-7 shrink-0 place-items-center rounded-full", cls)}>
+                      <Icon className="size-4" />
+                    </span>
+                    <div className="min-w-0 flex-1 text-sm">
+                      <p className="truncate">
+                        <span className="font-medium">{a.student_name}</span>{" "}
+                        <span className="text-muted-foreground">·</span>{" "}
+                        {a.problem_title}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {a.course_name} · {a.status} · {timeAgo(a.created_at)}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
       </div>
 
-      {/* Statistics Grid */}
-      {data && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-            <TrendingUp className="h-6 w-6" />
-            Your Overview
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            {statsCards.map((stat, index) => {
-              const IconComponent = stat.icon;
-              return (
-                <Card key={index} className="hover:shadow-md transition-shadow">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                      {stat.title}
-                    </CardTitle>
-                    <IconComponent className={`h-5 w-5 ${stat.color}`} />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {stat.value.toLocaleString()}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+      <section>
+        <SectionTitle>Quick actions</SectionTitle>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {quickActions.map((a) => (
+            <ActionCard key={a.href} {...a} />
+          ))}
         </div>
-      )}
-
-      {/* My Courses */}
-      {data && data.courses.length > 0 && (
-        <div>
-          <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-            <BookOpen className="h-6 w-6" />
-            My Courses
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {data.courses.map((course, index) => (
-              <Card
-                key={index}
-                className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                      <BookOpen className="h-6 w-6 text-blue-600" />
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
-                  </div>
-                  <CardTitle className="text-lg line-clamp-2">
-                    {course.name}
-                  </CardTitle>
-                  <CardDescription>
-                    {course.section_name} • {course.semester_name}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-2">
-                  <Button
-                    asChild
-                    className="w-full"
-                    variant="outline"
-                    size="sm"
-                  >
-                    <Link
-                      href={`/my-courses/${course.id}/problems`}
-                      className="flex items-center gap-2"
-                    >
-                      <FileText className="h-4 w-4" />
-                      View Problems
-                      <ExternalLink className="h-3 w-3" />
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Quick Actions */}
-      <div>
-        <h2 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-          <TrendingUp className="h-6 w-6" />
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {quickActions.map((action, index) => {
-            const IconComponent = action.icon;
-            return (
-              <Card
-                key={index}
-                className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className={`p-2 rounded-lg ${action.bgColor}`}>
-                      <IconComponent
-                        className={`h-6 w-6 ${action.iconColor}`}
-                      />
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
-                  </div>
-                  <CardTitle className="text-lg">{action.title}</CardTitle>
-                  <CardDescription>{action.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <Button asChild className="w-full" variant="outline">
-                    <Link href={action.href}>Go to {action.title}</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Empty State for Courses */}
-      {data && data.courses.length === 0 && (
-        <Card className="border-dashed">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
-              No Courses Assigned
-            </CardTitle>
-            <CardDescription>
-              You don't have any courses assigned yet. Contact your
-              administrator to get started.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground text-center py-8">
-              Once courses are assigned, you'll see them here with quick access
-              to problems and students.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      </section>
     </div>
   );
 }
