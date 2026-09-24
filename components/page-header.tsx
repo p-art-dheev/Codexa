@@ -24,7 +24,7 @@ export function PageHeader({
     >
       <div className="min-w-0 space-y-1">
         {eyebrow && (
-          <div className="text-xs font-medium uppercase tracking-wider text-primary">
+          <div className="text-xs font-medium uppercase tracking-wider text-brand">
             {eyebrow}
           </div>
         )}

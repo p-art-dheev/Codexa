@@ -2,24 +2,60 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/lib/site";
 
-export function BrandMark({ className }: { className?: string }) {
+/**
+ * Logo mark: an open "C" (a code bracket bent into a letter) with a
+ * terminal cursor parked in its opening — code, and a proctor watching it.
+ * Ink tile + emerald cursor; the tile inverts automatically in dark mode.
+ */
+export function LogoGlyph({
+  className,
+  animated = false,
+}: {
+  className?: string;
+  animated?: boolean;
+}) {
+  return (
+    <svg viewBox="0 0 32 32" fill="none" className={className} aria-hidden>
+      <path
+        d="M21.9 10.6A7.6 7.6 0 1 0 21.9 21.4"
+        stroke="currentColor"
+        strokeWidth="3.2"
+        strokeLinecap="round"
+      />
+      <rect
+        x="20.6"
+        y="14.1"
+        width="4.6"
+        height="3.8"
+        rx="1"
+        className={cn(
+          "fill-brand",
+          animated && "motion-safe:animate-[cursor-blink_1.1s_steps(1)_infinite]"
+        )}
+      />
+    </svg>
+  );
+}
+
+export function BrandMark({
+  className,
+  animated = false,
+}: {
+  className?: string;
+  animated?: boolean;
+}) {
   return (
     <span
       aria-hidden
       className={cn(
-        "grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground shadow-sm shadow-primary/30",
+        "relative grid size-8 shrink-0 place-items-center overflow-hidden rounded-[9px] bg-primary text-primary-foreground",
+        "shadow-[0_1px_2px_rgb(0_0_0/0.18),inset_0_1px_0_rgb(255_255_255/0.12)]",
         className
       )}
     >
-      <svg viewBox="0 0 24 24" className="size-[18px]" fill="none">
-        <path
-          d="M8.5 7 4 12l4.5 5M15.5 7 20 12l-4.5 5M13.5 5l-3 14"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      {/* soft top highlight for depth */}
+      <span className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 to-transparent dark:from-black/5" />
+      <LogoGlyph className="relative size-[78%]" animated={animated} />
     </span>
   );
 }
@@ -36,14 +72,15 @@ export function Brand({
   return (
     <Link
       href={href}
-      className={cn(
-        "flex items-center gap-2.5 rounded-md font-semibold tracking-tight",
-        className
-      )}
+      aria-label={`${siteConfig.name} home`}
+      className={cn("group flex items-center gap-2.5 rounded-md", className)}
     >
-      <BrandMark />
+      <BrandMark animated />
       <span
-        className={cn("text-[17px]", hideTextOnMobile && "hidden sm:inline")}
+        className={cn(
+          "text-[17px] font-semibold tracking-[-0.03em]",
+          hideTextOnMobile && "hidden sm:inline"
+        )}
       >
         {siteConfig.name}
       </span>

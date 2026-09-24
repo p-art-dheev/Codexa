@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#fcfcfd" },
-    { media: "(prefers-color-scheme: dark)", color: "#14151c" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f1012" },
   ],
 };
 
@@ -39,7 +39,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
+      {/* suppressHydrationWarning: browser extensions (ColorZilla, Grammarly, …)
+          inject attributes into <body> before React hydrates. */}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} font-sans`}
+        suppressHydrationWarning
+      >
         <Providers>
           {children}
           <Toaster richColors closeButton position="bottom-right" />

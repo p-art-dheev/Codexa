@@ -60,7 +60,7 @@ export function RoleBadge({
       className={cn(
         "inline-flex items-center rounded-full border px-1.5 py-px text-[10px] font-medium uppercase tracking-wide",
         role === "admin" &&
-          "border-primary/30 bg-primary/10 text-primary",
+          "border-brand/30 bg-brand/10 text-brand",
         role === "faculty" &&
           "border-chart-2/30 bg-chart-2/10 text-chart-2",
         role === "student" && "border-border bg-muted text-muted-foreground",
@@ -189,7 +189,7 @@ function UserMenuContent({
                 {user?.email}
               </p>
             </div>
-            <Check className="size-4 text-primary" aria-label="Current account" />
+            <Check className="size-4 text-brand" aria-label="Current account" />
           </div>
 
           {others.map((acc) => (

@@ -69,7 +69,7 @@ function CodePreview() {
   return (
     <div className="relative mx-auto mt-16 w-full max-w-4xl">
       <div className="absolute -inset-x-10 -top-10 -bottom-4 -z-10 rounded-[2rem] bg-glow blur-2xl" />
-      <div className="overflow-hidden rounded-2xl border bg-card shadow-2xl shadow-primary/10">
+      <div className="overflow-hidden rounded-2xl border bg-card shadow-2xl shadow-brand/10">
         <div className="flex items-center gap-2 border-b bg-muted/40 px-4 py-2.5">
           <span className="size-2.5 rounded-full bg-[#ff5f57]" />
           <span className="size-2.5 rounded-full bg-[#febc2e]" />
@@ -84,7 +84,7 @@ function CodePreview() {
         </div>
         <div className="grid text-left md:grid-cols-[1fr_1.25fr]">
           <div className="hidden border-r p-5 text-sm md:block">
-            <p className="text-xs font-medium uppercase tracking-wider text-primary">
+            <p className="text-xs font-medium uppercase tracking-wider text-brand">
               Problem 1 · Easy
             </p>
             <p className="mt-1.5 font-semibold">Two Sum</p>
@@ -102,7 +102,7 @@ function CodePreview() {
           <pre className="overflow-x-auto p-5 font-mono text-[13px] leading-6">
             <code>
               <span className="text-chart-4">def</span>{" "}
-              <span className="text-primary">two_sum</span>(nums, target):{"\n"}
+              <span className="text-brand">two_sum</span>(nums, target):{"\n"}
               {"    "}seen = {"{}"}{"\n"}
               {"    "}<span className="text-chart-4">for</span> i, n{" "}
               <span className="text-chart-4">in</span> enumerate(nums):{"\n"}
@@ -133,7 +133,7 @@ export function HeroContent() {
         <div className="bg-glow absolute inset-0 -z-10" />
         <div className="mx-auto max-w-6xl px-4 pt-20 pb-16 text-center sm:px-6 sm:pt-28">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground shadow-xs backdrop-blur">
-            <ShieldCheck className="size-3.5 text-primary" />
+            <ShieldCheck className="size-3.5 text-brand" />
             {siteConfig.tagline}
           </div>
           <h1 className="mx-auto max-w-4xl text-4xl font-semibold tracking-tight sm:text-6xl lg:text-7xl">
@@ -155,7 +155,7 @@ export function HeroContent() {
       <section id="features" className="scroll-mt-20 border-t bg-muted/30">
         <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-medium text-primary">Everything in one place</p>
+            <p className="text-sm font-medium text-brand">Everything in one place</p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
               Built for how universities teach programming
             </h2>
@@ -166,7 +166,7 @@ export function HeroContent() {
                 key={f.title}
                 className="rounded-2xl border bg-card p-6 shadow-xs transition-shadow hover:shadow-md"
               >
-                <span className="grid size-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                <span className="grid size-10 place-items-center rounded-xl bg-brand/10 text-brand">
                   <f.icon className="size-5" />
                 </span>
                 <h3 className="mt-4 font-semibold">{f.title}</h3>
@@ -181,7 +181,7 @@ export function HeroContent() {
       <section id="roles" className="scroll-mt-20">
         <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
-            <p className="text-sm font-medium text-primary">One platform, three views</p>
+            <p className="text-sm font-medium text-brand">One platform, three views</p>
             <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
               The right tools for every role
             </h2>
@@ -198,7 +198,7 @@ export function HeroContent() {
                 <ul className="mt-5 space-y-2.5 text-sm">
                   {r.points.map((p) => (
                     <li key={p} className="flex gap-2 text-muted-foreground">
-                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />
+                      <span className="mt-2 size-1.5 shrink-0 rounded-full bg-brand" />
                       {p}
                     </li>
                   ))}

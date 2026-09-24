@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 export type Tone = "primary" | "success" | "warning" | "pink" | "sky" | "muted";
 
 const toneClasses: Record<Tone, string> = {
-  primary: "bg-primary/10 text-primary",
+  primary: "bg-brand/10 text-brand",
   success: "bg-success/12 text-success",
   warning: "bg-warning/15 text-[color-mix(in_oklch,var(--warning)_70%,var(--foreground))]",
   pink: "bg-chart-4/12 text-chart-4",
@@ -96,14 +96,14 @@ export function ActionCard({
   return (
     <Link
       href={href}
-      className="group relative flex items-start gap-3 rounded-xl border bg-card p-4 shadow-xs transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+      className="group relative flex items-start gap-3 rounded-xl border bg-card p-4 shadow-xs transition-all hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
     >
       <IconTile icon={icon} tone={tone} />
       <div className="min-w-0 flex-1">
         <p className="font-medium">{title}</p>
         <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
       </div>
-      <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-primary" />
+      <ArrowUpRight className="size-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-brand" />
     </Link>
   );
 }
@@ -128,7 +128,7 @@ export function ProgressBar({
       className={cn("h-1.5 w-full overflow-hidden rounded-full bg-muted", className)}
     >
       <div
-        className="h-full rounded-full bg-primary transition-[width] duration-700 ease-out"
+        className="h-full rounded-full bg-brand transition-[width] duration-700 ease-out"
         style={{ width: `${pct}%` }}
       />
     </div>
@@ -168,7 +168,7 @@ export function ProgressRing({
           strokeLinecap="round"
           strokeDasharray={c}
           strokeDashoffset={c - (pct / 100) * c}
-          className="fill-none stroke-primary transition-[stroke-dashoffset] duration-700 ease-out"
+          className="fill-none stroke-brand transition-[stroke-dashoffset] duration-700 ease-out"
         />
       </svg>
       <div className="absolute inset-0 grid place-items-center">{children}</div>

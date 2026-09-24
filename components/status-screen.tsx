@@ -39,7 +39,7 @@ export function StatusScreen({
             "mb-5 grid size-14 place-items-center rounded-2xl border bg-card shadow-sm",
             kind === "error" && "text-destructive",
             kind === "forbidden" && "text-warning",
-            (kind === "auth" || kind === "empty") && "text-primary"
+            (kind === "auth" || kind === "empty") && "text-brand"
           )}
         >
           <Icon className="size-6" />

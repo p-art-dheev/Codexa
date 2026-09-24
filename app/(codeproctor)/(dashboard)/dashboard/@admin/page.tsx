@@ -92,7 +92,7 @@ export default function AdminDashboard() {
         name={user?.name}
         subtitle={`Here's what's happening across ${siteConfig.name} today.`}
         badge={
-          <span className="inline-flex items-center gap-1.5 self-start rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary sm:self-auto">
+          <span className="inline-flex items-center gap-1.5 self-start rounded-full border border-brand/30 bg-brand/10 px-3 py-1 text-xs font-medium text-brand sm:self-auto">
             <ShieldCheck className="size-3.5" />
             Administrator
           </span>

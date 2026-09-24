@@ -194,7 +194,7 @@ export default function FacultyDashboard() {
                 <Link
                   key={`${course.id}-${i}`}
                   href={`/my-courses/${course.id}/problems`}
-                  className="group flex items-start gap-3 rounded-xl border bg-card p-4 shadow-xs transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                  className="group flex items-start gap-3 rounded-xl border bg-card p-4 shadow-xs transition-all hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 >
                   <IconTile icon={BookOpen} tone="primary" />
                   <div className="min-w-0 flex-1">
@@ -203,7 +203,7 @@ export default function FacultyDashboard() {
                       {course.section_name} · {course.semester_name}
                     </p>
                   </div>
-                  <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
+                  <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-brand" />
                 </Link>
               ))}
             </div>

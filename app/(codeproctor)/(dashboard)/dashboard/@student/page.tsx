@@ -211,7 +211,7 @@ export default function StudentDashboard() {
                 <Link
                   key={`${course.id}-${course.section_id}`}
                   href={`/my-courses/${course.id}/problems`}
-                  className="group rounded-xl border bg-card p-4 shadow-xs transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                  className="group rounded-xl border bg-card p-4 shadow-xs transition-all hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 >
                   <div className="flex items-start gap-3">
                     <IconTile icon={BookOpen} tone="primary" />
@@ -221,7 +221,7 @@ export default function StudentDashboard() {
                         {course.section_name} · {course.semester_name}
                       </p>
                     </div>
-                    <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
+                    <ArrowRight className="size-4 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-brand" />
                   </div>
                   <div className="mt-4 space-y-1.5">
                     <div className="flex justify-between text-xs">
