@@ -34,7 +34,7 @@ export default function AppSidebar() {
     <Sidebar collapsible="icon" variant="sidebar">
       <SidebarHeader className="h-16 justify-center border-b border-sidebar-border px-3">
         <div className="group-data-[collapsible=icon]:hidden">
-          <Brand href="/dashboard" />
+          <Brand href="/dashboard" subtitle />
         </div>
         <Link
           href="/dashboard"

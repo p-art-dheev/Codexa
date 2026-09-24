@@ -17,12 +17,34 @@ const geistMono = Geist_Mono({
   display: "swap",
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "http://localhost:3000");
+
+// Icons come from file conventions in /app: favicon.ico, icon.svg,
+// apple-icon.png, opengraph-image.png, twitter-image.png and manifest.ts.
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  applicationName: siteConfig.name,
   title: {
     default: `${siteConfig.name} — ${siteConfig.tagline}`,
     template: `%s · ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  openGraph: {
+    type: "website",
+    siteName: siteConfig.name,
+    title: `${siteConfig.name} — ${siteConfig.subtitle}`,
+    description: siteConfig.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} — ${siteConfig.subtitle}`,
+    description: siteConfig.description,
+  },
+  appleWebApp: { title: siteConfig.name, statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {

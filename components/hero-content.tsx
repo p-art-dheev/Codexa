@@ -12,6 +12,7 @@ import {
   UserCog,
 } from "lucide-react";
 import { ActionButtons } from "@/components/action-buttons";
+import { Brand, BrandLogo } from "@/components/brand";
 import { siteConfig } from "@/lib/site";
 
 const features = [
@@ -131,7 +132,11 @@ export function HeroContent() {
       <section className="relative isolate overflow-hidden">
         <div className="bg-grid mask-fade-b absolute inset-0 -z-10" />
         <div className="bg-glow absolute inset-0 -z-10" />
-        <div className="mx-auto max-w-6xl px-4 pt-20 pb-16 text-center sm:px-6 sm:pt-28">
+        <div className="mx-auto max-w-6xl px-4 pt-16 pb-16 text-center sm:px-6 sm:pt-24">
+          <div className="relative mx-auto mb-10 w-full max-w-[280px] sm:max-w-[420px]">
+            <div className="bg-brand-gradient absolute inset-x-8 -inset-y-4 -z-10 rounded-full opacity-20 blur-3xl" />
+            <BrandLogo className="w-full" priority />
+          </div>
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-card/70 px-3 py-1 text-xs font-medium text-muted-foreground shadow-xs backdrop-blur">
             <ShieldCheck className="size-3.5 text-brand" />
             {siteConfig.tagline}
@@ -224,7 +229,10 @@ export function HeroContent() {
 
       <footer className="border-t">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-4 py-8 text-sm text-muted-foreground sm:flex-row sm:px-6">
-          <p>© {new Date().getFullYear()} {siteConfig.name}</p>
+          <div className="flex items-center gap-3">
+            <Brand />
+            <span>© {new Date().getFullYear()}</span>
+          </div>
           <p>Made for universities.</p>
         </div>
       </footer>
